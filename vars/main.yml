@@ -1,0 +1,4 @@
+#SPDX-License-Identifier: MIT-0
+---
+vector_config_path: "/etc/vector/vector.yaml"
+vector_repo_url: https://setup.vector.dev
