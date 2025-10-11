@@ -1,0 +1,25 @@
+---
+
+- name: VECTOR | Copy Daemon script
+  template:
+    src: "{{ vector_service_template_path }}"
+    dest: /etc/systemd/system/vector.service
+    mode: 0644
+    owner: root
+    group: root
+  notify: Restart vector
+
+- name: VECTOR | Configuring service
+  systemd_service:
+    name: vector
+    state: "{{ vector_service_state }}"
+    enabled: "{{ vector_service_enabled }}"
+    daemon_reload: yes
+#  when: ansible_service_mgr == "systemd"
+
+# - name: VECTOR | Configuring service
+#   ansible.builtin.service:
+#     name: vector
+#     state: "{{ vector_service_state }}"
+#     enabled: "{{ vector_service_enabled }}"
+#   when: ansible_service_mgr == "sysvinit" or ansible_service_mgr == "upstart"

@@ -1,0 +1,58 @@
+---
+#Main installation actions
+#https://vector.com/docs/en/getting-started/#installation
+
+# - name: Install by APT | Apt-key add repo key
+#   apt_key:
+#     keyserver: "{{ vector_repo_keyserver }}"
+#     id: "{{ vector_repo_key }}"
+#   become: true
+#   tags: [install]
+
+# - name: Install by APT | Remove old repo
+#   apt_repository:
+#     repo: "{{ vector_repo_old }}"
+#     state: absent
+#   become: true
+#   when: vector_repo_old is defined
+#   tags: [install]
+
+# - name: Install by APT | Repo installation
+#   apt_repository:
+#     repo: "{{ vector_repo }}"
+#     state: present
+#   become: true
+#   tags: [install]
+
+
+- name: Debug (Install by APT | Package installation)
+  ansible.builtin.debug:
+    msg: "{{ vector_package | map('regex_replace', '$', '=' + vector_version + '-1') | list }}"
+
+- name: Install by APT | Package installation
+  apt:
+    name: "{{ vector_package | map('regex_replace', '$', '=' + vector_version + '-1') | list }}"
+    state: present
+    update_cache: true
+  become: true
+  when: vector_version != 'latest'
+  tags: [install]
+
+- name: Install by APT | Package installation
+  apt:
+    name: "{{ vector_package }}"
+    state: "{{ vector_version }}"
+    update_cache: true
+  become: true
+  when: vector_version == 'latest'
+  tags: [install]
+
+- name: Hold specified version during APT upgrade | Package installation
+  become: true
+  copy:
+    dest: "/etc/apt/preferences.d/fixed-{{ item }}"
+    content: |
+      Package: {{ item }}
+      Pin: release a=now
+      Pin-Priority: 1001
+  loop: "{{ vector_package }}"

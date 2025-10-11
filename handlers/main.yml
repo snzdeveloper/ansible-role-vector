@@ -9,3 +9,15 @@
     - restartservice
   become: true
   
+- name: Restart vector
+  ansible.builtin.service:
+    name: vector
+    state: restarted
+  when: vector_service_state != 'stopped'
+
+- name: Reload vector
+  ansible.builtin.service:
+    name: vector
+    state: reloaded
+  when: vector_service_state != 'stopped'
+

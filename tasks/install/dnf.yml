@@ -1,0 +1,40 @@
+---
+#Main installation actions
+#https://vector.com/docs/en/getting-started/#installation
+
+- name: Install by YUM | Ensure vector repo GPG key imported
+  rpm_key:
+    state: present
+    key: "{{ vector_repo_key }}"
+  tags: [install]
+  become: true
+
+- name: Install by YUM | Ensure vector repo installed
+  yum_repository:
+    name: vector
+    file: vector
+    description: "vector repo"
+    baseurl: "{{ vector_repo }}"
+    enabled: yes
+    gpgcheck: 1
+    gpgkey: "{{ vector_repo_key }}"
+  tags: [install]
+  become: true
+
+- name: Install by YUM | Ensure vector package installed (latest)
+  dnf:
+    name: "{{ vector_package }} "
+    state: "{{ vector_version }}"
+    disable_gpg_check: true
+  become: true
+  tags: [install]
+  when: vector_version == 'latest'
+
+- name: Install by YUM | Ensure vector package installed (version {{ vector_version }})
+  dnf:
+    name: "{{ vector_package | map('regex_replace', '$', '-' + vector_version) | list }}"
+    state: present
+    disable_gpg_check: true
+  become: true
+  tags: [install]
+  when: vector_version != 'latest'
