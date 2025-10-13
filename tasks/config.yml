@@ -6,7 +6,7 @@
     state: directory
     owner: "{{ vector_user }}"
     group: "{{ vector_group }}"
-    mode: 0640
+    mode: 0644
   with_filetree: "{{ vector_config_template_path }}"
   when: "item.state == 'directory'"
 
@@ -19,7 +19,7 @@
     mode: '0640'
   with_filetree: "{{ vector_config_template_path }}"
   when: "item.state == 'file'"
-  notify: Restart vector
+#  notify: Start vector service
   tags: [vector_configure]
 # - name: Copy config
 #   template:
@@ -34,18 +34,18 @@
 #     line: "VECTOR_CONFIG={{ vector_config_file }}"
 #     state: present
 
-# - name: Add vector user to docker group
-#   user:
-#     name: vector
-#     groups: docker
-#     append: yes
-#   when: add_vector_docker_group | default(no)
-#   notify: restart vector
+- name: Add vector user to docker group
+  user:
+    name: vector
+    groups: docker
+    append: yes
+  when: add_vector_docker_group | default(false)
+  notify: restart vector
 
-# - name: Add vector user to systemd-journal group
-#   user:
-#     name: vector
-#     groups: systemd-journal
-#     append: yes
-#   when: add_vector_journal_group | default(no)
-#   notify: restart vector
+- name: Add vector user to systemd-journal group
+  user:
+    name: vector
+    groups: systemd-journal
+    append: yes
+  when: add_vector_journal_group | default(true)
+  notify: restart vector

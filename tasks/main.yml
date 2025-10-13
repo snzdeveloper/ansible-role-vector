@@ -104,8 +104,8 @@
 #     - service
 #   when: not vector_remove|bool
 
-- name: Flush handlers
-  ansible.builtin.meta: flush_handlers
-  tags:
-    - vector
-    - restart
+# - name: Flush handlers
+#   ansible.builtin.meta: flush_handlers
+#   tags:
+#     - vector
+#     - restart

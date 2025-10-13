@@ -27,8 +27,8 @@
     name: "https://packages.timber.io/vector/{{ version }}/vector-{{ package_version }}.{{ arch }}.rpm"
     state: present
     disable_gpg_check: yes # package is not signed
-  notify:
-    - restart vector
+  # notify:
+  #   - restart vector
   vars:
     version: "{{ (vector_version == 'nightly')| bool | ternary('nightly/latest', vector_version) }}"
     package_version: "{{ vector_version is match('latest') | ternary(vector_version, vector_version ~ '-1') }}"
