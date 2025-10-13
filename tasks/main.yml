@@ -16,6 +16,11 @@
   changed_when: false
   ignore_errors: true
 
+- name: Print vector check
+  ansible.builtin.debug:
+    msg: "VECTOR: {{ vector_check.failed }}"
+
+
 # - name: VECTOR | Download package
 #   apt:
 #     deb: "{{ vector_deb_package }}"
@@ -30,7 +35,7 @@
   tags:
     - vector
     - install
-  when: not vector_remove|bool
+  when: not vector_remove|bool and vector_check.failed|bool
 
 - name: Run vector repo installer
   ansible.builtin.shell:
@@ -40,17 +45,20 @@
   tags:
     - vector
     - install
-  when: not vector_remove|bool
+  when: not vector_remove|bool and vector_check.failed|bool
 
 - name: Print pkg manager
   ansible.builtin.debug:
     msg: "PKG: {{ ansible_pkg_mgr }}. MGR: {{ ansible_service_mgr }}"
 
-- include_tasks:
-    file: "prepare.yml"
-    apply:
-      tags: [install]
-
+# - include_tasks:
+#     file: "prepare.yml"
+#     apply:
+#       tags: [install]
+#   vars:
+#     pkgs:
+#       - systemctl
+        
 - include_tasks:
     file: "{{ lookup('first_found', params) }}"
     apply:
@@ -58,7 +66,7 @@
   vars:
     params:
       files:
-        - "install/{{ ansible_pkg_mgr }}.yml"
+        - "install/{{ ansible_pkg_mgr if ansible_pkg_mgr != 'dnf' else 'rpm' }}.yml"
         - 'install/rpm.yml'
   tags: [install]
   when: not vector_remove|bool
@@ -89,12 +97,12 @@
     - configure
   when: not vector_remove|bool
 
-- name: VECTOR | Service
-  include_tasks: service.yml
-  tags:
-    - vector
-    - service
-  when: not vector_remove|bool
+# - name: VECTOR | Service
+#   include_tasks: service.yml
+#   tags:
+#     - vector
+#     - service
+#   when: not vector_remove|bool
 
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers

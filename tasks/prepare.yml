@@ -1,4 +1,8 @@
 ---
+- name: Print pkgs manager
+  ansible.builtin.debug:
+    msg: "PKGs: {{ pkgs }}"
+
 - name: update apt cache
   ansible.builtin.apt:
     update_cache: yes
@@ -14,10 +18,10 @@
     update_cache: yes
   when: ansible_pkg_mgr == "apk"
 
-- name: update dnf cache
-  ansible.builtin.dnf:
-    update_cache: yes
-  when: ansible_pkg_mgr == "dnf"
+# - name: update dnf cache
+#   ansible.builtin.dnf:
+#     update_cache: yes
+#   when: ansible_pkg_mgr == "dnf"
 
 - name: update zypper cache
   community.general.zypper:
@@ -37,3 +41,12 @@
       - curl
     state: present
   become: true # Use become if root privileges are needed for package installation
+  when: ansible_service_mgr == "sysvinit"  
+
+# - name: Install necessary packages | Ensure systemd is present
+#   ansible.builtin.package:
+#     name:
+#       - systemd
+#     state: present
+#   become: true # Use become if root privileges are needed for package installation
+#   when: ansible_service_mgr == "systemd"  

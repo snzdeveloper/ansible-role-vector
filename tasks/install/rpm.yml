@@ -1,23 +1,36 @@
-- name: Get vector distrib
-  ansible.builtin.get_url:
-    url: "https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_version }}-1.x86_64.rpm"
-    dest: "/tmp/vector-{{ vector_version }}.rpm"
-    mode: '0644'
-  tags:
-    - vector
-    - install
+# - name: Get vector distrib
+#   ansible.builtin.get_url:
+#     url: "https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_version }}-1.x86_64.rpm"
+#     dest: "/tmp/vector-{{ vector_version }}.rpm"
+#     mode: '0644'
+#   tags:
+#     - vector
+#     - install
 
-- name: Update dnf cache
-  ansible.builtin.dnf:
-    update_cache: true
+# - name: Update dnf cache
+#   ansible.builtin.dnf:
+#     update_cache: true
 
-- name: Install vector
-  ansible.builtin.dnf:
-    name: "/tmp/vector-{{ vector_version }}.rpm"
+# - name: Install vector
+#   ansible.builtin.yum:
+#     name: "/tmp/vector-{{ vector_version }}.rpm"
+#     state: present
+#     disable_gpg_check: true
+#   changed_when: false
+#   tags:
+#     - vector
+#     - install
+#   become: true
+
+- name: Install Vector (RedHat)
+  yum:
+    name: "https://packages.timber.io/vector/{{ version }}/vector-{{ package_version }}.{{ arch }}.rpm"
     state: present
-    disable_gpg_check: true
-  changed_when: false
-  tags:
-    - vector
-    - install
-  become: true
+    disable_gpg_check: yes # package is not signed
+  notify:
+    - restart vector
+  vars:
+    version: "{{ (vector_version == 'nightly')| bool | ternary('nightly/latest', vector_version) }}"
+    package_version: "{{ vector_version is match('latest') | ternary(vector_version, vector_version ~ '-1') }}"
+    arch: "{{ ansible_machine }}"
+  when: ansible_os_family == 'RedHat'

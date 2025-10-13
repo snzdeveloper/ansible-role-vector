@@ -15,11 +15,11 @@
     state: "{{ vector_service_state }}"
     enabled: "{{ vector_service_enabled }}"
     daemon_reload: yes
-#  when: ansible_service_mgr == "systemd"
+  when: ansible_service_mgr == "systemd"
 
-# - name: VECTOR | Configuring service
-#   ansible.builtin.service:
-#     name: vector
-#     state: "{{ vector_service_state }}"
-#     enabled: "{{ vector_service_enabled }}"
-#   when: ansible_service_mgr == "sysvinit" or ansible_service_mgr == "upstart"
+- name: VECTOR | Configuring service
+  ansible.builtin.service:
+    name: vector
+    state: "{{ vector_service_state }}"
+    enabled: "{{ vector_service_enabled }}"
+  when: ansible_service_mgr == "sysvinit" or ansible_service_mgr == "upstart"

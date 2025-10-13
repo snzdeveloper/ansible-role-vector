@@ -1,0 +1,57 @@
+---
+- name: Prepare instance for testing
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: UPD
+      block:
+        - name: Print pkgs manager
+          ansible.builtin.debug:
+            msg: "PKGs: {{ pkgs }}"
+
+        - name: update apt cache
+          ansible.builtin.apt:
+            update_cache: yes
+          when: ansible_pkg_mgr == "apt"
+
+        - name: update yum cache
+          ansible.builtin.yum:
+            update_cache: yes
+          when: ansible_pkg_mgr == "yum"
+
+        - name: update apk cache
+          community.general.apk:
+            update_cache: yes
+          when: ansible_pkg_mgr == "apk"
+
+        - name: update dnf cache
+          ansible.builtin.dnf:
+            update_cache: yes
+          when: ansible_pkg_mgr == "dnf"
+
+        - name: update zypper cache
+          community.general.zypper:
+            name: zypper
+            update_cache: yes
+          when: ansible_pkg_mgr == "zypper"
+
+        - name: update pacman cache
+          community.general.pacman:
+            update_cache: yes
+          when: ansible_pkg_mgr == "pacman"  
+
+        - name: Upgrade all packages
+          ansible.builtin.package:
+            name: "*"
+            state: latest
+          become: true # Use become if root privileges are needed for package installation
+
+        - name: Install necessary packages (e.g., git, curl)
+          ansible.builtin.package:
+            name: "{{ pkgs }}"
+              # - systemctl
+              # - curl
+              # - python3
+            state: present
+          become: true # Use become if root privileges are needed for package installation
+      when: pkgs is defined

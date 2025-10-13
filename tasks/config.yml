@@ -21,3 +21,31 @@
   when: "item.state == 'file'"
   notify: Restart vector
   tags: [vector_configure]
+# - name: Copy config
+#   template:
+#     src: "{{ vector_template }}"
+#     dest: "{{ vector_config_file }}"
+#     mode: 0644
+#   notify: restart vector
+
+# - name: Use the right config_file
+#   lineinfile:
+#     path: /etc/default/vector
+#     line: "VECTOR_CONFIG={{ vector_config_file }}"
+#     state: present
+
+# - name: Add vector user to docker group
+#   user:
+#     name: vector
+#     groups: docker
+#     append: yes
+#   when: add_vector_docker_group | default(no)
+#   notify: restart vector
+
+# - name: Add vector user to systemd-journal group
+#   user:
+#     name: vector
+#     groups: systemd-journal
+#     append: yes
+#   when: add_vector_journal_group | default(no)
+#   notify: restart vector
